@@ -40,10 +40,10 @@ const VinylCard = ({ vinyl, artistName, genreName }) => {
                   href={vinyl.applemusic}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center"
+                  className="w-6 h-6 flex items-center justify-center" 
                 >
                   <img
-                    src="/apple-music.svg" // Ruta al ícono de Apple Music
+                    src="/coleccion-vinilos-facundin/apple-music.svg" // Ruta al ícono de Apple Music
                     alt="Apple Music"
                     className="w-full h-full object-contain"
                   />
@@ -54,10 +54,10 @@ const VinylCard = ({ vinyl, artistName, genreName }) => {
                   href={vinyl.spotify}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center"
+                  className="w-6 h-6 flex items-center justify-center" 
                 >
                   <img
-                    src="/spotify-icon.svg" // Ruta al ícono de Spotify
+                    src="/coleccion-vinilos-facundin/spotify-icon.svg" // Ruta al ícono de Spotify
                     alt="Spotify"
                     className="w-full h-full object-contain"
                   />
