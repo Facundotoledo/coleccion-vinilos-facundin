@@ -26,12 +26,43 @@ const VinylCard = ({ vinyl, artistName, genreName }) => {
           <>
             <h3 className="text-3xl font-bold mb-2">{vinyl.name}</h3>
             <p className="text-xl text-gray-700 mb-4">{artistName || 'Cargando artista...'}</p>
-
             <p className="text-base text-gray-700 mb-6 text-justify">{vinyl.description || 'Descripción no disponible.'}</p>
 
             <div className="mt-auto text-sm text-gray-500">
               <p><strong>Género:</strong> {genreName || 'Género no disponible'}</p>
               <p><strong>Fecha de Lanzamiento:</strong> {releaseDate.length === 3 ? `${releaseDate[0]}/${releaseDate[1]}/${releaseDate[2]}` : 'Fecha no disponible'}</p>
+            </div>
+
+            {/* Botones de Apple Music y Spotify */}
+            <div className="flex gap-4 mt-6">
+              {vinyl.applemusic && (
+                <a
+                  href={vinyl.applemusic}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 flex items-center justify-center"
+                >
+                  <img
+                    src="/apple-music.svg" // Ruta al ícono de Apple Music
+                    alt="Apple Music"
+                    className="w-full h-full object-contain"
+                  />
+                </a>
+              )}
+              {vinyl.spotify && (
+                <a
+                  href={vinyl.spotify}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 flex items-center justify-center"
+                >
+                  <img
+                    src="/spotify-icon.svg" // Ruta al ícono de Spotify
+                    alt="Spotify"
+                    className="w-full h-full object-contain"
+                  />
+                </a>
+              )}
             </div>
           </>
         ) : (
