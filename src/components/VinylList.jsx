@@ -51,7 +51,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
       try {
         const vinylsCollection = collection(db, 'vinyl');
         const vinylSnapshot = await getDocs(vinylsCollection);
-        const vinylList = vinylSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const vinylList = vinylSnapshot.docs.map(doc => doc.data());
 
         vinylList.forEach(vinyl => {
           const { 'artist-id': artistId, 'genre-id': genreId } = vinyl;
@@ -68,13 +68,17 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
     };
 
     fetchVinyls();
-  }, [artists, genres]);
+  }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center mt-10 text-lg">Cargando vinilos...</div>;
   }
 
-  // Filtrar los vinilos según el término de búsqueda y el género seleccionado
+  const parseDate = (dateStr) => {
+    const [day, month, year] = dateStr.split('-').map(Number); // Ajustado para "dd-mm-yyyy"
+    return { year, month, day };
+  };
+
   const filteredVinyls = vinyls.filter(vinyl => {
     const artistName = artists[vinyl['artist-id']]?.toLowerCase() || '';
     const vinylName = vinyl.name?.toLowerCase() || '';
@@ -89,25 +93,91 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
     return matchesSearch && matchesGenre;
   });
 
-  // Ordenar vinilos
   const sortedVinyls = filteredVinyls.sort((a, b) => {
-    const aVal = sortOption === 'name' ? a.name : sortOption === 'year' ? a['release-date'] : artists[a['artist-id']];
-    const bVal = sortOption === 'name' ? b.name : sortOption === 'year' ? b['release-date'] : artists[b['artist-id']];
+    let aValue = '';
+    let bValue = '';
 
-    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-    return 0;
+    switch (sortOption) {
+      case 'year':
+        const aDate = parseDate(a['release-date']);
+        const bDate = parseDate(b['release-date']);
+        if (aDate.year !== bDate.year) {
+          return sortOrder === 'asc' ? aDate.year - bDate.year : bDate.year - aDate.year;
+        } else if (aDate.month !== bDate.month) {
+          return sortOrder === 'asc' ? aDate.month - bDate.month : bDate.month - aDate.month;
+        } else {
+          return sortOrder === 'asc' ? aDate.day - bDate.day : bDate.day - aDate.day;
+        }
+      case 'name':
+        aValue = a.name.toLowerCase();
+        bValue = b.name.toLowerCase();
+        break;
+      case 'artist':
+        aValue = artists[a['artist-id']]?.toLowerCase() || '';
+        bValue = artists[b['artist-id']]?.toLowerCase() || '';
+        break;
+      default:
+        break;
+    }
+
+    if (sortOrder === 'asc') {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    } else {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    }
   });
 
+  // Mostrar tarjetas y expandida correctamente en filas
+  const elements = [];
+  for (let i = 0; i < sortedVinyls.length; i += columns) {
+    const rowVinyls = sortedVinyls.slice(i, i + columns);
+
+    if (
+      expandedIndex !== null &&
+      expandedIndex >= i &&
+      expandedIndex < i + columns
+    ) {
+      const expandedVinyl = sortedVinyls[expandedIndex];
+      elements.push(
+        <motion.div
+          key={'expanded-' + expandedIndex}
+          layout
+          className="col-span-full"
+          onClick={() => setExpandedIndex(null)}
+        >
+          <VinylCard
+            vinyl={{ ...expandedVinyl, expanded: true }}
+            artistName={artists[expandedVinyl['artist-id']]}
+            genreName={genres[expandedVinyl['genre-id']]}
+          />
+        </motion.div>
+      );
+    }
+
+    rowVinyls.forEach((vinyl, indexInRow) => {
+      const realIndex = i + indexInRow;
+      if (realIndex === expandedIndex) return;
+
+      elements.push(
+        <motion.div
+          key={realIndex}
+          layout
+          onClick={() => setExpandedIndex(realIndex)}
+        >
+          <VinylCard
+            vinyl={{ ...vinyl, expanded: false }}
+            artistName={artists[vinyl['artist-id']]}
+            genreName={genres[vinyl['genre-id']]}
+          />
+        </motion.div>
+      );
+    });
+  }
+
   return (
-    <motion.div
-      className="grid gap-6"
-      style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
-    >
-      {sortedVinyls.map((vinyl, index) => (
-        <VinylCard key={vinyl.id} vinyl={vinyl} artist={artists[vinyl['artist-id']]} genre={genres[vinyl['genre-id']]} />
-      ))}
-    </motion.div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {elements}
+    </div>
   );
 };
 

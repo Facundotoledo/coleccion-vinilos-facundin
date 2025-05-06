@@ -90,7 +90,7 @@ const Home = () => {
           <h1 className="text-6xl font-bold text-white mr-4" style={{ fontFamily: 'Oswald, sans-serif' }}>
             COLECCIÓN DE VINILOS
           </h1>
-          <img src="./coleccion-vinilos-facundin/vinyl.png" alt="Vinyl Record" className="w-24 h-24" />
+          <img src="./vinyl.png" alt="Vinyl Record" className="w-24 h-24" />
         </div>
       </div>
 
