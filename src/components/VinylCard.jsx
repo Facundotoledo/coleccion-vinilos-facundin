@@ -26,6 +26,7 @@ const VinylCard = ({ vinyl, artistName, genreName }) => {
           <>
             <h3 className="text-3xl font-bold mb-2">{vinyl.name}</h3>
             <p className="text-xl text-gray-700 mb-4">{artistName || 'Cargando artista...'}</p>
+
             <p className="text-base text-gray-700 mb-6 text-justify">{vinyl.description || 'Descripción no disponible.'}</p>
 
             <div className="mt-auto text-sm text-gray-500">
@@ -34,33 +35,15 @@ const VinylCard = ({ vinyl, artistName, genreName }) => {
             </div>
 
             {/* Botones de Apple Music y Spotify */}
-            <div className="flex gap-4 mt-6">
-              {vinyl.applemusic && (
-                <a
-                  href={vinyl.applemusic}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-6 h-6 flex items-center justify-center" 
-                >
-                  <img
-                    src="/coleccion-vinilos-facundin/apple-music.svg" // Ruta al ícono de Apple Music
-                    alt="Apple Music"
-                    className="w-full h-full object-contain"
-                  />
+            <div className="flex gap-4 mt-4">
+              {vinyl['apple-music'] && (
+                <a href={vinyl['apple-music']} target="_blank" rel="noopener noreferrer">
+                  <img src="/apple-music.svg" alt="Apple Music" className="w-8 h-8" />
                 </a>
               )}
               {vinyl.spotify && (
-                <a
-                  href={vinyl.spotify}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-6 h-6 flex items-center justify-center" 
-                >
-                  <img
-                    src="/coleccion-vinilos-facundin/spotify-icon.svg" // Ruta al ícono de Spotify
-                    alt="Spotify"
-                    className="w-full h-full object-contain"
-                  />
+                <a href={vinyl.spotify} target="_blank" rel="noopener noreferrer">
+                  <img src="/spotify.svg" alt="Spotify" className="w-8 h-8" />
                 </a>
               )}
             </div>

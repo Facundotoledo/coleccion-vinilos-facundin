@@ -163,7 +163,7 @@ const Home = () => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto mb-16">
         <VinylList
           searchTerm={searchTerm}
           selectedGenreId={selectedGenreId}

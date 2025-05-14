@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import React, { useEffect, useState, useRef } from 'react';
+import { collection, getDocs, doc, getDoc, query, orderBy, startAfter, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import VinylCard from './VinylCard';
 import { motion } from 'framer-motion';
@@ -11,6 +11,11 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
   const [loading, setLoading] = useState(true);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [columns, setColumns] = useState(4);
+  const [lastVisible, setLastVisible] = useState(null); // Para paginación
+  const [hasMore, setHasMore] = useState(true); // Indica si hay más datos para cargar
+  const observer = useRef(null); // Referencia para el scroll infinito
+
+  const ITEMS_PER_PAGE = 12;
 
   useEffect(() => {
     const updateColumns = () => {
@@ -26,51 +31,81 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
     return () => window.removeEventListener('resize', updateColumns);
   }, []);
 
+  const fetchArtistAndGenreNames = async (artistId, genreId) => {
+    try {
+      if (!artists[artistId]) {
+        const artistDoc = await getDoc(doc(db, 'artist', artistId));
+        if (artistDoc.exists()) {
+          setArtists(prev => ({ ...prev, [artistId]: artistDoc.data().name }));
+        }
+      }
+
+      if (!genres[genreId]) {
+        const genreDoc = await getDoc(doc(db, 'genere', genreId));
+        if (genreDoc.exists()) {
+          setGenres(prev => ({ ...prev, [genreId]: genreDoc.data().name }));
+        }
+      }
+    } catch (error) {
+      console.error('Error al obtener datos de artista o género:', error);
+    }
+  };
+
+  const fetchVinyls = async (isInitialLoad = false) => {
+    try {
+      setLoading(true);
+      const vinylsCollection = collection(db, 'vinyl');
+      let vinylQuery = query(
+        vinylsCollection,
+        orderBy('name'),
+        startAfter(lastVisible || 0),
+        limit(ITEMS_PER_PAGE)
+      );
+
+      const vinylSnapshot = await getDocs(vinylQuery);
+      const vinylList = vinylSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      vinylList.forEach(vinyl => {
+        const { 'artist-id': artistId, 'genre-id': genreId } = vinyl;
+        if (artistId && genreId) {
+          fetchArtistAndGenreNames(artistId, genreId);
+        }
+      });
+
+      if (vinylSnapshot.docs.length < ITEMS_PER_PAGE) {
+        setHasMore(false); // No hay más datos para cargar
+      }
+
+      setLastVisible(vinylSnapshot.docs[vinylSnapshot.docs.length - 1]); // Actualizar el último documento visible
+      setVinyls(prev => (isInitialLoad ? vinylList : [...prev, ...vinylList]));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error al obtener vinilos:', error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchArtistAndGenreNames = async (artistId, genreId) => {
-      try {
-        if (!artists[artistId]) {
-          const artistDoc = await getDoc(doc(db, 'artist', artistId));
-          if (artistDoc.exists()) {
-            setArtists(prev => ({ ...prev, [artistId]: artistDoc.data().name }));
-          }
-        }
-
-        if (!genres[genreId]) {
-          const genreDoc = await getDoc(doc(db, 'genere', genreId));
-          if (genreDoc.exists()) {
-            setGenres(prev => ({ ...prev, [genreId]: genreDoc.data().name }));
-          }
-        }
-      } catch (error) {
-        console.error('Error al obtener datos de artista o género:', error);
-      }
-    };
-
-    const fetchVinyls = async () => {
-      try {
-        const vinylsCollection = collection(db, 'vinyl');
-        const vinylSnapshot = await getDocs(vinylsCollection);
-        const vinylList = vinylSnapshot.docs.map(doc => doc.data());
-
-        vinylList.forEach(vinyl => {
-          const { 'artist-id': artistId, 'genre-id': genreId } = vinyl;
-          if (artistId && genreId) {
-            fetchArtistAndGenreNames(artistId, genreId);
-          }
-        });
-
-        setVinyls(vinylList);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error al obtener vinilos:', error);
-      }
-    };
-
-    fetchVinyls();
+    fetchVinyls(true); // Cargar los primeros datos
   }, []);
 
-  if (loading) {
+  const handleObserver = (entries) => {
+    const target = entries[0];
+    if (target.isIntersecting && hasMore && !loading) {
+      fetchVinyls(); // Cargar más datos cuando el usuario llega al final
+    }
+  };
+
+  useEffect(() => {
+    const options = { root: null, rootMargin: '0px', threshold: 1.0 };
+    observer.current = new IntersectionObserver(handleObserver, options);
+    const target = document.querySelector('#load-more-trigger');
+    if (target) observer.current.observe(target);
+
+    return () => observer.current && observer.current.disconnect();
+  }, [hasMore, loading]);
+
+  if (loading && vinyls.length === 0) {
     return <div className="text-center mt-10 text-lg">Cargando vinilos...</div>;
   }
 
@@ -175,8 +210,15 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {elements}
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {elements}
+      </div>
+      {hasMore && (
+        <div id="load-more-trigger" className="text-center mt-10">
+          {loading ? 'Cargando más vinilos...' : ''}
+        </div>
+      )}
     </div>
   );
 };
