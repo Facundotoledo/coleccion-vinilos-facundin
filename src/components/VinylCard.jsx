@@ -38,12 +38,12 @@ const VinylCard = ({ vinyl, artistName, genreName }) => {
             <div className="flex gap-4 mt-4">
               {vinyl['apple-music'] && (
                 <a href={vinyl['apple-music']} target="_blank" rel="noopener noreferrer">
-                  <img src="/apple-music.svg" alt="Apple Music" className="w-8 h-8" />
+                  <img src="./apple-music.svg" alt="Apple Music" className="w-8 h-8" />
                 </a>
               )}
               {vinyl.spotify && (
                 <a href={vinyl.spotify} target="_blank" rel="noopener noreferrer">
-                  <img src="/spotify.svg" alt="Spotify" className="w-8 h-8" />
+                  <img src="./spotify.svg" alt="Spotify" className="w-8 h-8" />
                 </a>
               )}
             </div>
