@@ -43,7 +43,7 @@ const VinylCard = ({ vinyl, artistName, genreName }) => {
               )}
               {vinyl.spotify && (
                 <a href={vinyl.spotify} target="_blank" rel="noopener noreferrer">
-                  <img src="./spotify.svg" alt="Spotify" className="w-8 h-8" />
+                  <img src="./spotify-icon.svg" alt="Spotify" className="w-8 h-8" />
                 </a>
               )}
             </div>
