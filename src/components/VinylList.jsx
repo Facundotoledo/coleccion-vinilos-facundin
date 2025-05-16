@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import VinylCard from './VinylCard';
 import { motion } from 'framer-motion';
 
-const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name', sortOrder = 'asc' }) => {
+const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name', sortOrder = 'asc', showFavorites = false }) => {
   const [vinyls, setVinyls] = useState([]);
   const [artists, setArtists] = useState({});
   const [genres, setGenres] = useState({});
@@ -105,6 +105,14 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
     return () => observer.current && observer.current.disconnect();
   }, [hasMore, loading]);
 
+  const handleFavoriteChange = (vinylId, isLiked) => {
+    setVinyls(prevVinyls =>
+      prevVinyls.map(vinyl =>
+        vinyl.id === vinylId ? { ...vinyl, isLiked } : vinyl
+      )
+    );
+  };
+
   if (loading && vinyls.length === 0) {
     return <div className="text-center mt-10 text-lg">Cargando vinilos...</div>;
   }
@@ -125,7 +133,9 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
 
     const matchesGenre = !selectedGenreId || genreId === selectedGenreId;
 
-    return matchesSearch && matchesGenre;
+    const matchesFavorites = !showFavorites || vinyl.isLiked; // New condition for favorites
+
+    return matchesSearch && matchesGenre && matchesFavorites;
   });
 
   const sortedVinyls = filteredVinyls.sort((a, b) => {
@@ -184,6 +194,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
             vinyl={{ ...expandedVinyl, expanded: true }}
             artistName={artists[expandedVinyl['artist-id']]}
             genreName={genres[expandedVinyl['genre-id']]}
+            onFavoriteChange={handleFavoriteChange} // Pass the callback
           />
         </motion.div>
       );
@@ -203,6 +214,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
             vinyl={{ ...vinyl, expanded: false }}
             artistName={artists[vinyl['artist-id']]}
             genreName={genres[vinyl['genre-id']]}
+            onFavoriteChange={handleFavoriteChange} // Pass the callback
           />
         </motion.div>
       );

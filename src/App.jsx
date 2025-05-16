@@ -13,6 +13,7 @@ const Home = () => {
   const [sortOrder, setSortOrder] = useState('asc');
   const [randomVinyl, setRandomVinyl] = useState(null);
   const [artists, setArtists] = useState({});
+  const [showFavorites, setShowFavorites] = useState(false); // New state for filtering favorites
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -136,6 +137,14 @@ const Home = () => {
             >
               {sortOrder === 'asc' ? <FaArrowDown /> : <FaArrowUp />}
             </button>
+            <button
+              onClick={() => setShowFavorites(!showFavorites)}
+              className={`py-3 px-4 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg ${
+                showFavorites ? 'bg-indigo-500 text-white' : 'bg-gray-800 text-white'
+              }`}
+            >
+              Favoritos
+            </button>
           </div>
         </div>
 
@@ -169,6 +178,7 @@ const Home = () => {
           selectedGenreId={selectedGenreId}
           sortOption={sortOption}
           sortOrder={sortOrder}
+          showFavorites={showFavorites} // Pass the new state
         />
       </div>
 
