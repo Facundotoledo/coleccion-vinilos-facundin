@@ -11,9 +11,9 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
   const [loading, setLoading] = useState(true);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [columns, setColumns] = useState(4);
-  const [lastVisible, setLastVisible] = useState(null); // Para paginación
-  const [hasMore, setHasMore] = useState(true); // Indica si hay más datos para cargar
-  const observer = useRef(null); // Referencia para el scroll infinito
+  const [lastVisible, setLastVisible] = useState(null);
+  const [hasMore, setHasMore] = useState(true); 
+  const observer = useRef(null); 
 
   const ITEMS_PER_PAGE = 12;
 
@@ -76,7 +76,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
         setHasMore(false); // No hay más datos para cargar
       }
 
-      setLastVisible(vinylSnapshot.docs[vinylSnapshot.docs.length - 1]); // Actualizar el último documento visible
+      setLastVisible(vinylSnapshot.docs[vinylSnapshot.docs.length - 1]); // Actualiza el último documento visible
       setVinyls(prev => (isInitialLoad ? vinylList : [...prev, ...vinylList]));
       setLoading(false);
     } catch (error) {
@@ -86,13 +86,13 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
   };
 
   useEffect(() => {
-    fetchVinyls(true); // Cargar los primeros datos
+    fetchVinyls(true); // Carga los primeros datos
   }, []);
 
   const handleObserver = (entries) => {
     const target = entries[0];
     if (target.isIntersecting && hasMore && !loading) {
-      fetchVinyls(); // Cargar más datos cuando el usuario llega al final
+      fetchVinyls(); // Carga más datos cuando el usuario llega al final
     }
   };
 
@@ -118,7 +118,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
   }
 
   const parseDate = (dateStr) => {
-    const [day, month, year] = dateStr.split('-').map(Number); // Ajustado para "dd-mm-yyyy"
+    const [day, month, year] = dateStr.split('-').map(Number); 
     return { year, month, day };
   };
 
@@ -133,7 +133,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
 
     const matchesGenre = !selectedGenreId || genreId === selectedGenreId;
 
-    const matchesFavorites = !showFavorites || vinyl.isLiked; // New condition for favorites
+    const matchesFavorites = !showFavorites || vinyl.isLiked; 
 
     return matchesSearch && matchesGenre && matchesFavorites;
   });
@@ -172,7 +172,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
     }
   });
 
-  // Mostrar tarjetas y expandida correctamente en filas
+  // Muestra tarjetas y expande correctamente en filas
   const elements = [];
   for (let i = 0; i < sortedVinyls.length; i += columns) {
     const rowVinyls = sortedVinyls.slice(i, i + columns);
@@ -194,7 +194,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
             vinyl={{ ...expandedVinyl, expanded: true }}
             artistName={artists[expandedVinyl['artist-id']]}
             genreName={genres[expandedVinyl['genre-id']]}
-            onFavoriteChange={handleFavoriteChange} // Pass the callback
+            onFavoriteChange={handleFavoriteChange}
           />
         </motion.div>
       );
@@ -214,7 +214,7 @@ const VinylList = ({ searchTerm = '', selectedGenreId = '', sortOption = 'name',
             vinyl={{ ...vinyl, expanded: false }}
             artistName={artists[vinyl['artist-id']]}
             genreName={genres[vinyl['genre-id']]}
-            onFavoriteChange={handleFavoriteChange} // Pass the callback
+            onFavoriteChange={handleFavoriteChange} 
           />
         </motion.div>
       );

@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase'; // Adjust the path if necessary
+import { db } from '../firebase'; 
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const VinylCard = ({ vinyl, artistName, genreName, onFavoriteChange }) => {
-  const [isLiked, setIsLiked] = useState(vinyl.isLiked || false); // Local state for immediate UI feedback
+  const [isLiked, setIsLiked] = useState(vinyl.isLiked || false); 
   const releaseDate = vinyl['release-date'] ? vinyl['release-date'].split("-") : [];
 
   const toggleFavorite = async (e) => {
-    e.stopPropagation(); // Prevent triggering parent events (e.g., collapsing the card)
+    e.stopPropagation(); 
     try {
       const vinylRef = doc(db, 'vinyl', vinyl.id);
       const newIsLiked = !isLiked;
       await updateDoc(vinylRef, { isLiked: newIsLiked });
-      setIsLiked(newIsLiked); // Update local state
-      if (onFavoriteChange) onFavoriteChange(vinyl.id, newIsLiked); // Notify parent about the change
+      setIsLiked(newIsLiked); 
+      if (onFavoriteChange) onFavoriteChange(vinyl.id, newIsLiked); 
     } catch (error) {
       console.error('Error al actualizar el estado de favorito:', error);
     }
@@ -27,7 +27,6 @@ const VinylCard = ({ vinyl, artistName, genreName, onFavoriteChange }) => {
       className={`bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex ${vinyl.expanded ? 'flex-row' : 'flex-col'} ${vinyl.expanded ? 'h-full' : ''}`}
       style={{ fontFamily: 'Roboto Condensed, sans-serif' }}
     >
-      {/* Imagen del vinilo */}
       <div className={`aspect-square ${vinyl.expanded ? 'w-1/2' : 'w-full'} overflow-hidden`}>
         <img
           src={vinyl.coverImageUrl}
@@ -36,9 +35,9 @@ const VinylCard = ({ vinyl, artistName, genreName, onFavoriteChange }) => {
         />
       </div>
 
-      {/* Información */}
+      
       <div className={`p-4 ${vinyl.expanded ? 'w-1/2' : 'w-full'} flex flex-col text-gray-800`}>
-        {/* Expandido */}
+        
         {vinyl.expanded ? (
           <>
             <h3 className="text-3xl font-bold mb-2">{vinyl.name}</h3>
